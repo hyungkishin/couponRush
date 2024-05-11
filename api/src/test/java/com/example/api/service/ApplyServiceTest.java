@@ -1,26 +1,55 @@
 package com.example.api.service;
 
+import com.example.api.repository.CouponCountRepository;
 import com.example.api.repository.CouponRepository;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.transaction.annotation.Transactional;
+import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
+@Testcontainers
+@Transactional
 class ApplyServiceTest {
+
+    @Container
+    public static MySQLContainer<?> mysql = new MySQLContainer<>("mysql:5.7")
+            .withDatabaseName("coupon_example")
+            .withUsername("root")
+            .withPassword("1234");
+
+    @DynamicPropertySource
+    static void setDatasourceProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", mysql::getJdbcUrl);
+        registry.add("spring.datasource.username", mysql::getUsername);
+        registry.add("spring.datasource.password", mysql::getPassword);
+    }
 
     @Autowired
     private ApplyService applyService;
 
     @Autowired
     private CouponRepository couponRepository;
+
+    @Autowired
+    private CouponCountRepository couponCountRepository;
+
+    @AfterEach
+    public void cleanUpRedis() {
+        couponCountRepository.flushAll();
+    }
 
     @Test
     public void 한번만응모() {

@@ -16,4 +16,7 @@ public class CouponCountRepository {
                 .increment("coupon_count");
     }
 
+    public void flushAll() {
+        redisTemplate.getConnectionFactory().getConnection().flushAll();
+    }
 }
