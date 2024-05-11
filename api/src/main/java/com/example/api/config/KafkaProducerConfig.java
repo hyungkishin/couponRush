@@ -31,12 +31,12 @@ public class KafkaProducerConfig {
         // value serializer 정보를 추가
         config.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, LongSerializer.class);
 
-        // 메시지를 보낸 후 모든 브로커의 확인을 기다림
-        config.put(ProducerConfig.ACKS_CONFIG, "all");
-        // 재시도 횟수
-        config.put(ProducerConfig.RETRIES_CONFIG, 10);
-        // 메시지 전송 중복을 방지
-        config.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);
+//        // 메시지를 보낸 후 모든 브로커의 확인을 기다림
+//        config.put(ProducerConfig.ACKS_CONFIG, "all");
+//        // 재시도 횟수
+//        config.put(ProducerConfig.RETRIES_CONFIG, 10);
+//        // 메시지 전송 중복을 방지
+//        config.put(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);
 
         // default KafkaProducerFactory 를 생성해서 return 해준다.
         return new DefaultKafkaProducerFactory<>(config);

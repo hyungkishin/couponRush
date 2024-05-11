@@ -6,12 +6,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.transaction.annotation.Transactional;
-import org.testcontainers.containers.MySQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -20,22 +15,8 @@ import java.util.concurrent.Executors;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-@Testcontainers
 @Transactional
 class ApplyServiceTest {
-
-    @Container
-    public static MySQLContainer<?> mysql = new MySQLContainer<>("mysql:5.7")
-            .withDatabaseName("coupon_example")
-            .withUsername("root")
-            .withPassword("1234");
-
-    @DynamicPropertySource
-    static void setDatasourceProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", mysql::getJdbcUrl);
-        registry.add("spring.datasource.username", mysql::getUsername);
-        registry.add("spring.datasource.password", mysql::getPassword);
-    }
 
     @Autowired
     private ApplyService applyService;
@@ -47,14 +28,16 @@ class ApplyServiceTest {
     private CouponCountRepository couponCountRepository;
 
     @AfterEach
-    public void cleanUpRedis() {
+    public void cleanUp() {
         couponCountRepository.flushAll();
+        couponRepository.deleteAllInBatch();
     }
 
     @Test
-    public void 한번만응모() {
+    public void 한번만응모() throws InterruptedException {
         applyService.apply(1L);
 
+        Thread.sleep(10000);
         long count = couponRepository.count();
 
         assertThat(count).isEqualTo(1);
@@ -83,6 +66,7 @@ class ApplyServiceTest {
 
         latch.await();  // 모든 스레드의 작업 완료를 기다림
 
+        Thread.sleep(10000);
         executorService.shutdown();  // 스레드 풀 종료
 
         long count = couponRepository.count();  // 모든 적용이 완료된 후에 쿠폰 수 검사
