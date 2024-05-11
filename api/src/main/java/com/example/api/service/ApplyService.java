@@ -1,6 +1,7 @@
 package com.example.api.service;
 
 import com.example.api.domain.Coupon;
+import com.example.api.repository.CouponCountRepository;
 import com.example.api.repository.CouponRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -12,10 +13,11 @@ public class ApplyService {
 
     private final CouponRepository couponRepository;
 
+    private final CouponCountRepository couponCountRepository;
 
     @Transactional
     public void apply(Long userId) {
-        long count = couponRepository.count();
+        Long count = couponCountRepository.increment();
 
         if (count > 100) {
             return;
