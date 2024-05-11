@@ -1,0 +1,12 @@
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+  datasource:
+    hikari:
+      maximum-pool-size: 40  # Adjust as per requirements
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://127.0.0.1:3306/coupon_example?serverTimezone=UTC
+    username: root
+    password: 1234
